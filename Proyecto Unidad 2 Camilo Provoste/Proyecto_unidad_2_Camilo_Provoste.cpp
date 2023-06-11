@@ -7,7 +7,7 @@
 using namespace std;
 
 struct Guardian
-{
+{   
     string name;
     int PowerLevel;
     string MainMaster;
@@ -32,16 +32,9 @@ class GuardianTree
 
             if(root == nullptr)
             {
-                root = guardian;
+                 root = guardian;
             }
-            else
-            {
-                Guardian* master = findGuardian(MM);
-                if(master != nullptr)
-                {
-                    master->apprentices.push_back(guardian);
-                }
-            }
+
 
         }   
         void LoadGuardianFile(const string& FileName)
@@ -73,6 +66,18 @@ class GuardianTree
                 }
             }
             file.close();
+        }
+        void connectMaster()
+        {
+            for (Guardian* guardian : guardians) 
+            {
+                Guardian* master = findGuardian(guardian->MainMaster);
+                if(master != nullptr)
+                {
+                    master->apprentices.push_back(guardian);
+                }
+            }
+
         }
         void CreateGuardian()
         {
@@ -156,8 +161,9 @@ class GuardianTree
 
 struct Village
 {
-    string Village;
+    string Name;
     string ConnectedVillage;
+    vector<Village*> neighbours;
 };
 
 class Villages
@@ -166,12 +172,22 @@ class Villages
         void addVillage(string V, string CV)
         {
             Village* village = new Village;
-            village->Village = V;
+            village->Name = V;
             village->ConnectedVillage = CV;
-            Neighbors.push_back(village);
+            Villages.push_back(village);
+
+            if(root == nullptr)
+            {
+                root = village;
+            }
+        }
+        void ConnectVillage()
+        {
+            
         }
     private:
-        vector<Village*> Neighbors;
+        vector<Village*> Villages;
+        Village* root;
 
 };
 
@@ -180,6 +196,7 @@ int main()
     GuardianTree tree;
     tree.LoadGuardianFile("Guardianes.txt");  
     tree.CreateGuardian(); 
+    tree.connectMaster();
     tree.Info();
 
     return 0;
