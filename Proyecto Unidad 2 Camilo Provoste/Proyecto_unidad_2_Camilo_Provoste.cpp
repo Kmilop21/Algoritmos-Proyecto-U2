@@ -85,8 +85,24 @@ class GuardianTree
             cin.ignore();
             cout << "Choose the starting village for your Guardian: " << endl;
             getline(cin,V);
+            
+            while(!findVillage(V))
+            {
+                cout << "Village does not exist, please try again: ";
+                getline(cin,V);
+            }
             cout << "\n Choose the main master for your guardian: " << endl;
             cin >> MM;
+
+            Guardian* master = findGuardian(MM);
+            while(master == nullptr)
+            {
+                cout << "Master does not exist, please try again: ";
+                cin >> MM;
+                master = findGuardian(MM);
+            }
+            master->apprentices.push_back(guardian);
+
 
             guardian->name = n;
             guardian->PowerLevel = 50;
@@ -94,11 +110,6 @@ class GuardianTree
             guardian->MainMaster = MM;
             guardians.push_back(guardian);
 
-            Guardian* master = findGuardian(MM);
-            if(master != nullptr)
-            {
-                master->apprentices.push_back(guardian);
-            }
         }
         void Info()
         {
@@ -116,6 +127,18 @@ class GuardianTree
                 }
             }
             return nullptr;
+        }
+
+        bool findVillage(const string& village)
+        {
+            for(Guardian* guardian : guardians)
+            {
+                if(guardian->Village == village)
+                {
+                    return true;
+                }    
+            }
+            return false;
         }
         void info(Guardian* guardian, int indent)
         {
