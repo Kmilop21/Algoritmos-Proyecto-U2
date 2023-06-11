@@ -74,6 +74,32 @@ class GuardianTree
             }
             file.close();
         }
+        void CreateGuardian()
+        {
+            Guardian* guardian = new Guardian;
+
+            string n, V, MM;
+            cout << "Choose a name for your guardian: " << endl;
+            cin >> n;
+            cout << "\n Your guardian's power level will start at 50" << endl;
+            cin.ignore();
+            cout << "Choose the starting village for your Guardian: " << endl;
+            getline(cin,V);
+            cout << "\n Choose the main master for your guardian: " << endl;
+            cin >> MM;
+
+            guardian->name = n;
+            guardian->PowerLevel = 50;
+            guardian->Village = V;
+            guardian->MainMaster = MM;
+            guardians.push_back(guardian);
+
+            Guardian* master = findGuardian(MM);
+            if(master != nullptr)
+            {
+                master->apprentices.push_back(guardian);
+            }
+        }
         void Info()
         {
             info(root,0);
@@ -130,7 +156,8 @@ class Villages
 int main()
 {
     GuardianTree tree;
-    tree.LoadGuardianFile("Guardianes.txt");   
+    tree.LoadGuardianFile("Guardianes.txt");  
+    tree.CreateGuardian(); 
     tree.Info();
 
     return 0;
