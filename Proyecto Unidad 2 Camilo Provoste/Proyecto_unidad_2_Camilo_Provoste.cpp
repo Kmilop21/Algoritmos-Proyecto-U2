@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 using namespace std;
 
 struct Guardian
@@ -169,12 +170,26 @@ struct Village
 class Villages
 {
     public:
-        void addVillage(string V, string CV)
+        void addVillage(const string& V, const string& CV)
         {
-            Village* village = new Village;
-            village->Name = V;
-            village->ConnectedVillage = CV;
-            Villages.push_back(village);
+            Village* village = FindVillage(V);
+            Village* connectedVillage = FindVillage(CV);
+            
+            if (village == nullptr)
+            {
+                village = new Village;
+                village->Name = V;
+                Villages.push_back(village);
+            }
+
+            if (connectedVillage == nullptr)
+            {
+                connectedVillage = new Village;
+                connectedVillage->Name = CV;
+                Villages.push_back(connectedVillage);
+            }
+
+            village->neighbours.push_back(connectedVillage);
 
             if(root == nullptr)
             {
@@ -183,21 +198,85 @@ class Villages
         }
         void ConnectVillage()
         {
-            
+            for (Village* village : Villages) 
+            {
+                    Village* connectedVillage = FindVillage(village->ConnectedVillage);
+                    if(connectedVillage != nullptr)
+                    {
+                        village->neighbours.push_back(connectedVillage);
+                        connectedVillage->neighbours.push_back(village);
+                    }
+            }
+        }
+        void LoadVillageFile(const string& FileName)
+        {
+            ifstream file(FileName); 
+            if(!file)
+            {
+                cerr << "Failed to open file " << FileName << endl;
+                return; 
+            }  
+            string line;
+            getline(file,line);
+            while(getline(file,line))
+            {
+                istringstream iss(line);
+                string village, ConnectedVillage;
+                getline(iss, village, ',');
+                getline(iss, ConnectedVillage);
+                addVillage(village,ConnectedVillage);
+            }
+            file.close();
+        }
+        void AllInfo()
+        {
+            for(Village* village : Villages)
+            {
+                cout << "- " << village->Name << " neighbours: ";
+                if(!village->neighbours.empty())
+                {
+                    for(size_t i = 0; i < village->neighbours.size()-1 ; i++)
+                    {
+                        cout << village->neighbours[i]->Name << ", "; 
+                    }
+                    cout << village->neighbours.back()->Name;
+                }
+                cout << endl;
+            }
         }
     private:
         vector<Village*> Villages;
         Village* root;
 
+        Village* FindVillage(const string& name) {
+            for (Village* village : Villages) {
+                if (village->Name == name) {
+                    return village;
+                }
+            }
+            return nullptr;
+        }
+
+
 };
 
 int main()
 {
+    cout << "\n\nGuardian: \n\n";
+
     GuardianTree tree;
     tree.LoadGuardianFile("Guardianes.txt");  
     tree.CreateGuardian(); 
     tree.connectMaster();
     tree.Info();
+
+    cout << "\n\nVillages: \n\n";
+
+    Villages map;
+    map.LoadVillageFile("Aldeas.txt");
+    map.ConnectVillage();
+    map.AllInfo();
+
 
     return 0;
 }
