@@ -79,6 +79,14 @@ class GuardianTree
                 }
             }
 
+            for(Guardian* guardian : guardians)
+            {
+                if(guardian != Player)
+                {
+                    Moldable.push_back(guardian);
+                }
+            }
+
         }
         void CreateGuardian()
         {
@@ -116,15 +124,36 @@ class GuardianTree
             guardian->MainMaster = MM;
             guardians.push_back(guardian);
 
+            Player = guardian;
         }
         void Info()
         {
             info(root,0);
         }
+        void PlayerInfo()
+        {
+            cout << "- " << Player->name << " power level: " << Player->PowerLevel << "  village: " << Player->Village << " main master: " << Player->MainMaster << endl;
+        }
+        void SelectGuardian()
+        {
+            string name;
+            cout << "\n Escriba el nombre del guardian que desea: ";
+            cin >> name;
+            Player = findGuardian(name);
+            while(Player == nullptr)
+            {
+                cout << "Guardian doesn't exist, please try again: ";
+                cin >> name;
+                Player = findGuardian(name);
+            }
+            Player->PowerLevel = 50;
+        }
 
     private:
         vector<Guardian*> guardians;
+        vector<Guardian*> Moldable;
         Guardian* root;
+        Guardian* Player;
 
         Guardian* findGuardian(const string& name) {
             for (Guardian* guardian : guardians) {
@@ -164,6 +193,7 @@ struct Village
 {
     string Name;
     string ConnectedVillage;
+    int XP = 4;
     vector<Village*> neighbours;
 };
 
@@ -251,19 +281,44 @@ class Villages
 
 int main()
 {
-    cout << "\n\nGuardian: \n\n";
+    //cout << "\n\nGuardian: \n\n";
 
     GuardianTree tree;
     tree.LoadGuardianFile("Guardianes.txt");  
-    tree.CreateGuardian(); 
+    //tree.CreateGuardian(); 
     tree.connectMaster();
-    tree.Info();
+    //tree.Info();
 
-    cout << "\n\nVillages: \n\n";
+    //cout << "\n\nVillages: \n\n";
 
     Villages map;
     map.LoadVillageFile("Aldeas.txt");
-    map.AllInfo();
+    //map.AllInfo();
+
+    int o = -1;
+
+    while(o!=0)
+    {
+        cout << "Bienvenido, presione 0 para finalizar, 1 para elegir su personaje y 2 para crear a un personaje: ";
+        cin >> o;
+        while(o < -1 && o > 3)
+        {
+            cout << "Ingreso incorrecto, debe igresar un numero de 0 a 3: ";
+            cin >> o;
+        }
+        if(o==1)
+        {
+            tree.Info();
+            tree.SelectGuardian();
+        }
+        else if(o==2)
+        {
+            tree.CreateGuardian();
+        }
+        
+        tree.PlayerInfo();
+
+    }
 
 
     return 0;
