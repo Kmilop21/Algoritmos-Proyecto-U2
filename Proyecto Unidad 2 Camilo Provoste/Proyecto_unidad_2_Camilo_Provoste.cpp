@@ -169,7 +169,6 @@ class Villages
             village->Village = V;
             village->ConnectedVillage = CV;
             Neighbors.push_back(village);
-
         }
     private:
         vector<Village*> Neighbors;
