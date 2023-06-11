@@ -190,22 +190,11 @@ class Villages
             }
 
             village->neighbours.push_back(connectedVillage);
+            connectedVillage->neighbours.push_back(village);
 
             if(root == nullptr)
             {
                 root = village;
-            }
-        }
-        void ConnectVillage()
-        {
-            for (Village* village : Villages) 
-            {
-                    Village* connectedVillage = FindVillage(village->ConnectedVillage);
-                    if(connectedVillage != nullptr)
-                    {
-                        village->neighbours.push_back(connectedVillage);
-                        connectedVillage->neighbours.push_back(village);
-                    }
             }
         }
         void LoadVillageFile(const string& FileName)
@@ -274,7 +263,6 @@ int main()
 
     Villages map;
     map.LoadVillageFile("Aldeas.txt");
-    map.ConnectVillage();
     map.AllInfo();
 
 
