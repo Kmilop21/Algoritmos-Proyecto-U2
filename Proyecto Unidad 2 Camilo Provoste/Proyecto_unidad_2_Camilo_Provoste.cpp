@@ -269,6 +269,24 @@ class GuardianTree
                 TravelHistory.push_back(name);
             }
         }
+        void PrintTravelHistory()
+        {
+            for(const auto& visited : TravelHistory)
+            {
+                cout << " -" << visited << endl;
+            }
+        }
+        void SaveTrainingHistory(const string& text)
+        {
+            TrainingHistory.push_back(text);
+        }
+        void PrintTrainingHistory()
+        {
+            for(const auto& result : TrainingHistory)
+            {
+                cout << " -" << result << endl;
+            }
+        }
 
 
         Guardian* Player;
@@ -278,6 +296,7 @@ class GuardianTree
         vector<Guardian*> Moldable;
         vector<Guardian*> enVilla;
         vector<string> TravelHistory;
+        vector<string> TrainingHistory;
         Guardian* root;
 
 
@@ -525,7 +544,9 @@ int main()
 
                     if(tree.Fight(Rival))
                     {
-                        cout << "\nEl jugador ha superado el entrenamiento";
+                        cout << "\nEl jugador ha superado el entrenamiento contra: " << Rival->name;
+                        string text = "El jugador ha superado el entrenamiento contra: " + Rival->name;
+                        tree.SaveTrainingHistory(text);
                         if(Rival == Master)
                         {
                             tree.Player->PowerLevel+=2;
@@ -538,7 +559,9 @@ int main()
                         }
                     }
                     else{
-                        cout << "\nEl jugador no ha superado el entrenamiento";
+                        cout << "\nEl jugador no ha superado el entrenamiento contra: " << Rival->name;
+                        string text = "El jugador no ha superado el entrenamiento contra: " + Rival->name;
+                        tree.SaveTrainingHistory(text);
                     }
                 }
                 else
@@ -550,6 +573,12 @@ int main()
             else if(action == 3)//Alquimia
             {
 
+            }
+            else if(action == 4)
+            {
+                tree.PrintTravelHistory();
+                cout << "\n\n";
+                tree.PrintTrainingHistory();
             }
 
         }while(action!=0);
