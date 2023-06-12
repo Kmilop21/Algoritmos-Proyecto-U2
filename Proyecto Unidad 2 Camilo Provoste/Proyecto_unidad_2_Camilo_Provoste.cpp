@@ -63,7 +63,7 @@ class GuardianTree
                     InsertGuardian(name,PowerLevel,MainMaster,Village);
                 } catch(const std::invalid_argument& e)
                 {
-                    cerr << "Invalid Power level: " << PowerLevel << " for guardian: " << name << endl;
+                    cerr << "Nivel de poder invalido: " << PowerLevel << " para guardian: " << name << endl;
                 }
             }
             file.close();
@@ -93,25 +93,25 @@ class GuardianTree
             Guardian* guardian = new Guardian;
 
             string n, V, MM;
-            cout << "Choose a name for your guardian: " << endl;
+            cout << "Elija el nombre para su guardian: " << endl;
             cin >> n;
-            cout << "\n Your guardian's power level will start at 50" << endl;
+            cout << "\n El nivel de poder de su guardian empezara en 50" << endl;
             cin.ignore();
-            cout << "Choose the starting village for your Guardian: " << endl;
+            cout << "Elija la villa inicial para su guardian: " << endl;
             getline(cin,V);
             
             while(!findVillage(V))
             {
-                cout << "Village does not exist, please try again: ";
+                cout << "Villa no existe, por favor intente nuevamente: ";
                 getline(cin,V);
             }
-            cout << "\n Choose the main master for your guardian: " << endl;
+            cout << "\n Elija el maestro para su guardian: " << endl;
             cin >> MM;
 
             Guardian* master = findGuardian(MM);
             while(master == nullptr)
             {
-                cout << "Master does not exist, please try again: ";
+                cout << "El maestro no existe, por favor intente nuevamente: ";
                 cin >> MM;
                 master = findGuardian(MM);
             }
@@ -132,7 +132,7 @@ class GuardianTree
         }
         void PlayerInfo()
         {
-            cout << "- " << Player->name << ", power level: " << Player->PowerLevel << ",  village: " << Player->Village << ", main master: " << Player->MainMaster << endl;
+            cout << "- " << Player->name << ", nivel de poder: " << Player->PowerLevel << ",  villa: " << Player->Village << ", maestro principal: " << Player->MainMaster << endl;
         }
         void SelectGuardian()
         {
@@ -142,7 +142,7 @@ class GuardianTree
             Player = findGuardian(name);
             while(Player == nullptr)
             {
-                cout << "Guardian doesn't exist, please try again: ";
+                cout << "El guardian no existe, por favor intente nuevamente: ";
                 cin >> name;
                 Player = findGuardian(name);
             }
@@ -180,7 +180,7 @@ class GuardianTree
         {
             if(guardian != nullptr)
             {
-                cout << string(static_cast<std::string::size_type>(indent),' ') << "- " << guardian->name << "(Power level: " << guardian->PowerLevel << ", Village: " << guardian->Village << ")" << endl; 
+                cout << string(static_cast<std::string::size_type>(indent),' ') << "- " << guardian->name << "(Nivel de poder: " << guardian->PowerLevel << ", Villa: " << guardian->Village << ")" << endl; 
                 
                 for(Guardian* apprentice : guardian->apprentices)
                 {
@@ -252,7 +252,7 @@ class Villages
         {
             for(Village* village : Villages)
             {
-                cout << "- " << village->Name << " neighbours: ";
+                cout << "- " << village->Name << " vecinos: ";
                 if(!village->neighbours.empty())
                 {
                     for(size_t i = 0; i < village->neighbours.size()-1 ; i++)
@@ -273,10 +273,22 @@ class Villages
             {
                 for(size_t i = 0; i < currentVillage->neighbours.size()-1 ; i++)
                 {
-                    cout << "Neighbours: " << currentVillage->neighbours[i]->Name << ", "; 
+                    cout << "Vecinos: " << currentVillage->neighbours[i]->Name << ", "; 
                 }
                 cout << currentVillage->neighbours.back()->Name;
             }
+        }
+        bool ExistNeighbour(string& dest, string& currt)
+        {
+            Village* current = FindVillage(currt);
+            for(Village* neighbour : current->neighbours)
+            {
+                if(neighbour->Name == dest)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     private:
         vector<Village*> Villages;
@@ -310,13 +322,13 @@ int main()
     map.LoadVillageFile("Aldeas.txt");
     //map.AllInfo();
 
-    int o = -1;
+    int o = -1, action = -1;
 
     while(o!=0)
     {
         cout << "Bienvenido, presione 0 para finalizar, 1 para elegir su personaje y 2 para crear a un personaje: ";
         cin >> o;
-        while(o < -1 && o > 3)
+        while(o < -1 || o > 3)
         {
             cout << "Ingreso incorrecto, debe igresar un numero de 0 a 3: ";
             cin >> o;
@@ -331,8 +343,45 @@ int main()
             tree.CreateGuardian();
         }
         
-        tree.PlayerInfo();
-        map.CurrentInfo(tree.Player->Village);
+        //tree.PlayerInfo();
+        //map.CurrentInfo(tree.Player->Village);
+
+        do{
+            cout << "Presione 1 para viajar, 2 para entrenar o 3 para realizar alquimia: ";
+            cin >> action;
+
+            while(action<0 || action >3)
+            {
+                cout << "Ingreso incorrecto, intentelo nuevamente: ";
+                cin >> action;
+            }
+
+            if(action == 1)//viajar
+            {
+                map.CurrentInfo(tree.Player->Village);
+                string destino;
+                cout << "\nIngrese la villa de destino: ";
+                cin.ignore();
+                getline(cin,destino);
+                while(!map.ExistNeighbour(destino,tree.Player->Village))
+                {
+                    cout << "\nLa villa ingresada no existe o no es vecina, ingrese nuevamente: ";
+                    getline(cin,destino);
+                }
+                tree.Player->Village = destino;
+            }
+            else if(action == 2)//Entrenar
+            {
+
+            }
+            else if(action == 3)//Alquimia
+            {
+
+            }
+
+            tree.PlayerInfo();
+
+        }while(action!=0);
 
     }
 
