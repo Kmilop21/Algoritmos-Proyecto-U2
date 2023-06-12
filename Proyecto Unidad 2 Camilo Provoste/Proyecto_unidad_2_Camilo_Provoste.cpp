@@ -140,11 +140,6 @@ class GuardianTree
             for(Guardian* guardian : guardians)
             {
                 cout << "- " << guardian->name << " (Power level: " << guardian->PowerLevel << ", Village: " << guardian->Village << ")" << endl;
-
-                // for (Guardian* apprentice : guardian->apprentices)
-                // {
-                //     info(apprentice, 4); 
-                // }
             }
         }
         void PlayerInfo()
@@ -157,9 +152,9 @@ class GuardianTree
             cout << "\n Escriba el nombre del guardian que desea: ";
             cin >> name;
             Player = findGuardian(name);
-            while(Player == nullptr)
+            while(Player == nullptr || Player->name == "Stormheart")
             {
-                cout << "El guardian no existe, por favor intente nuevamente: ";
+                cout << "El guardian no existe o es Stormheart, por favor intente nuevamente: ";
                 cin >> name;
                 Player = findGuardian(name);
             }
@@ -196,6 +191,69 @@ class GuardianTree
             }
             return LowestPWGuardian;
         }
+        Guardian* findGuardian(const string& name) {
+            for (Guardian* guardian : guardians) {
+                if (guardian->name == name) {
+                    return guardian;
+                }
+            }
+            return nullptr;
+        }
+        bool Fight(Guardian* Rival)
+        {
+            int randNum = rand()%3+1;
+            int PWLV = Player->PowerLevel;
+
+            switch (randNum)
+            {
+            case 1:
+                PWLV = static_cast<int>(PWLV * 1.5);
+                break;
+            case 2:
+                PWLV = static_cast<int>(PWLV * 1.6);
+                break;
+            case 3:
+                PWLV = static_cast<int>(PWLV * 1.7);
+                break;
+            default:
+                break;
+            }
+
+            if(PWLV > Rival->PowerLevel)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        Guardian* FindMaster()
+        {
+            Guardian* Master = nullptr;
+            bool isMaster = true;
+
+            for(const auto& guardian : enVilla)
+            {
+                for(const auto& otherguardian : enVilla)
+                {
+                    if(guardian != otherguardian && guardian->MainMaster < otherguardian->MainMaster)
+                    {
+                        isMaster = false;
+                        break;
+                    }
+                }
+
+                if(isMaster)
+                {
+                    Master = guardian;
+                    break;
+                }
+                isMaster = true;
+            }
+            return Master;
+        }
+
 
         Guardian* Player;
 
@@ -205,14 +263,6 @@ class GuardianTree
         vector<Guardian*> enVilla;
         Guardian* root;
 
-        Guardian* findGuardian(const string& name) {
-            for (Guardian* guardian : guardians) {
-                if (guardian->name == name) {
-                    return guardian;
-                }
-            }
-            return nullptr;
-        }
 
         bool findVillage(const string& village)
         {
@@ -339,6 +389,23 @@ class Villages
             }
             return false;
         }
+        void RemoveXP(int n, const string& name)
+        {
+            Village* village = FindVillage(name);
+            village->XP -= n;
+        }
+        bool HasXP(const string& name)
+        {
+            Village* village = FindVillage(name);
+            if(village->XP > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     private:
         vector<Village*> Villages;
         Village* root;
@@ -362,6 +429,7 @@ int main()
     GuardianTree tree;
     tree.LoadGuardianFile("Guardianes.txt");  
     tree.connectMaster();
+    tree.Info();
 
     Villages map;
     map.LoadVillageFile("Aldeas.txt");
@@ -386,11 +454,11 @@ int main()
         {
             tree.CreateGuardian();
         }
-        
-        //tree.PlayerInfo();
-        //map.CurrentInfo(tree.Player->Village);
 
         do{
+            tree.PlayerInfo();
+            cout << "\n\n";
+
             cout << "\n\nPresione 1 para viajar, 2 para entrenar o 3 para realizar alquimia: ";
             cin >> action;
 
@@ -416,19 +484,53 @@ int main()
             }
             else if(action == 2)//Entrenar
             {
-                tree.FindInVillage(tree.Player->Village);
-                Guardian* Lowest = tree.FindLowestPW();
-                cout << "\nGuardian de nivel minimo (recomendado): " << Lowest->name;
+                if(map.HasXP(tree.Player->Village) == true)
+                {
+                    tree.FindInVillage(tree.Player->Village);
+                    Guardian* Lowest = tree.FindLowestPW();
+                    cout << "\nGuardian de nivel minimo (recomendado): " << Lowest->name;
+                    Guardian* Master = tree.FindMaster();
+                    cout << "\nMaestro de la villa: " << Master->name;
+
+                    cout << "\nEscriba el nombre del guardian con el que le gustaria entrenar: ";
+                    string target;
+                    getline(cin,target);
+                    Guardian* Rival = tree.findGuardian(target);
+                    while(Rival == nullptr)
+                    {
+                        cout << "\nEl guardian ingresado no existe, intentelo nuevamente: ";
+                        getline(cin,target);
+                        Rival = tree.findGuardian(target);
+                    }
+
+                    if(tree.Fight(Rival))
+                    {
+                        cout << "\nEl jugador ha superado el entrenamiento";
+                        if(Rival == Master)
+                        {
+                            tree.Player->PowerLevel+=2;
+                            map.RemoveXP(2,tree.Player->Village);
+                        }
+                        else
+                        {
+                            tree.Player->PowerLevel+=1;
+                            map.RemoveXP(1,tree.Player->Village);
+                        }
+                    }
+                    else{
+                        cout << "\nEl jugador no ha superado el entrenamiento";
+                    }
+                }
+                else
+                {
+                    cout << "\nNo hay mas puntos por obtener en esta villa";
+                }
+
             }
             else if(action == 3)//Alquimia
             {
 
             }
-
-            // cout << "\n\n";
-            // tree.PlayerInfo();
-            // cout << "\n\n";
-            // tree.MoldableInfo();
 
         }while(action!=0);
 
