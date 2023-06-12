@@ -253,6 +253,22 @@ class GuardianTree
             }
             return Master;
         }
+        void SaveTravelHistory(const string& name)
+        {
+            bool AlreadyVisited = false;
+            for(const auto& visited :TravelHistory)
+            {
+                if(visited == name)
+                {
+                    AlreadyVisited = true;
+                    break;
+                }
+            }
+            if(AlreadyVisited == false)
+            {
+                TravelHistory.push_back(name);
+            }
+        }
 
 
         Guardian* Player;
@@ -261,6 +277,7 @@ class GuardianTree
         vector<Guardian*> guardians;
         vector<Guardian*> Moldable;
         vector<Guardian*> enVilla;
+        vector<string> TravelHistory;
         Guardian* root;
 
 
@@ -455,6 +472,8 @@ int main()
             tree.CreateGuardian();
         }
 
+        tree.SaveTravelHistory(tree.Player->Village);
+
         do{
             tree.PlayerInfo();
             cout << "\n\n";
@@ -481,6 +500,7 @@ int main()
                     getline(cin,destino);
                 }
                 tree.Player->Village = destino;
+                tree.SaveTravelHistory(tree.Player->Village);
             }
             else if(action == 2)//Entrenar
             {
