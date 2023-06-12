@@ -1,0 +1,3 @@
+Este proyecto fue hecho pensando en ser usado en windows.
+Se deben usar los archivos de texto "Aldeas.txt" y "Guardianes.txt"
+Estos archivos de texto son modificables mientras se siga su formato y no se cambie la primera linea
