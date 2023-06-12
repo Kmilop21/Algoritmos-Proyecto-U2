@@ -132,7 +132,7 @@ class GuardianTree
         }
         void PlayerInfo()
         {
-            cout << "- " << Player->name << " power level: " << Player->PowerLevel << "  village: " << Player->Village << " main master: " << Player->MainMaster << endl;
+            cout << "- " << Player->name << ", power level: " << Player->PowerLevel << ",  village: " << Player->Village << ", main master: " << Player->MainMaster << endl;
         }
         void SelectGuardian()
         {
@@ -149,11 +149,12 @@ class GuardianTree
             Player->PowerLevel = 50;
         }
 
+        Guardian* Player;
+
     private:
         vector<Guardian*> guardians;
         vector<Guardian*> Moldable;
         Guardian* root;
-        Guardian* Player;
 
         Guardian* findGuardian(const string& name) {
             for (Guardian* guardian : guardians) {
@@ -263,6 +264,20 @@ class Villages
                 cout << endl;
             }
         }
+        void CurrentInfo(const string& name)
+        {
+            Village* currentVillage = FindVillage(name);
+
+            cout << "Villa: " << currentVillage->Name << endl;
+            if(!currentVillage->neighbours.empty())
+            {
+                for(size_t i = 0; i < currentVillage->neighbours.size()-1 ; i++)
+                {
+                    cout << "Neighbours: " << currentVillage->neighbours[i]->Name << ", "; 
+                }
+                cout << currentVillage->neighbours.back()->Name;
+            }
+        }
     private:
         vector<Village*> Villages;
         Village* root;
@@ -317,6 +332,7 @@ int main()
         }
         
         tree.PlayerInfo();
+        map.CurrentInfo(tree.Player->Village);
 
     }
 
