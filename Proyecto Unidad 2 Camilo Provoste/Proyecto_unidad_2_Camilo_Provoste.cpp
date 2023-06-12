@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
 struct Guardian
@@ -20,7 +22,7 @@ class GuardianTree
 {
     public:
 
-        GuardianTree() : root(nullptr){}
+        GuardianTree() : Player(nullptr), root(nullptr){}
 
         void InsertGuardian(const string n, const string PW, const string MM, const string V)
         {
@@ -72,10 +74,13 @@ class GuardianTree
         {
             for (Guardian* guardian : guardians) 
             {
-                Guardian* master = findGuardian(guardian->MainMaster);
-                if(master != nullptr)
+                if(guardian != Player)
                 {
-                    master->apprentices.push_back(guardian);
+                    Guardian* master = findGuardian(guardian->MainMaster);
+                    if(master != nullptr)
+                    {
+                        master->apprentices.push_back(guardian);
+                    }
                 }
             }
 
@@ -130,6 +135,18 @@ class GuardianTree
         {
             info(root,0);
         }
+        void MoldableInfo()
+        {
+            for(Guardian* guardian : guardians)
+            {
+                cout << "- " << guardian->name << " (Power level: " << guardian->PowerLevel << ", Village: " << guardian->Village << ")" << endl;
+
+                // for (Guardian* apprentice : guardian->apprentices)
+                // {
+                //     info(apprentice, 4); 
+                // }
+            }
+        }
         void PlayerInfo()
         {
             cout << "- " << Player->name << ", nivel de poder: " << Player->PowerLevel << ",  villa: " << Player->Village << ", maestro principal: " << Player->MainMaster << endl;
@@ -148,12 +165,44 @@ class GuardianTree
             }
             Player->PowerLevel = 50;
         }
+        void FindInVillage(string& name)
+        {
+            enVilla.clear();
+            cout << "Guardianes en la villa: ";
+            for(Guardian* guardian : Moldable)
+            {
+                if(guardian->Village == name && guardian!=Player)
+                {
+                    enVilla.push_back(guardian);
+                }    
+            }
+            for(Guardian* in : enVilla)
+            {
+                cout << in->name << ", ";
+            }
+        }
+        Guardian* FindLowestPW()
+        {
+            Guardian* LowestPWGuardian = nullptr;
+            int LowestPW = std::numeric_limits<int>::max();
+
+            for(Guardian* guardian : enVilla)
+            {
+                if(guardian->PowerLevel < LowestPW)
+                {
+                    LowestPW = guardian->PowerLevel;
+                    LowestPWGuardian = guardian;
+                }
+            }
+            return LowestPWGuardian;
+        }
 
         Guardian* Player;
 
     private:
         vector<Guardian*> guardians;
         vector<Guardian*> Moldable;
+        vector<Guardian*> enVilla;
         Guardian* root;
 
         Guardian* findGuardian(const string& name) {
@@ -308,19 +357,14 @@ class Villages
 
 int main()
 {
-    //cout << "\n\nGuardian: \n\n";
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     GuardianTree tree;
     tree.LoadGuardianFile("Guardianes.txt");  
-    //tree.CreateGuardian(); 
     tree.connectMaster();
-    //tree.Info();
-
-    //cout << "\n\nVillages: \n\n";
 
     Villages map;
     map.LoadVillageFile("Aldeas.txt");
-    //map.AllInfo();
 
     int o = -1, action = -1;
 
@@ -347,7 +391,7 @@ int main()
         //map.CurrentInfo(tree.Player->Village);
 
         do{
-            cout << "Presione 1 para viajar, 2 para entrenar o 3 para realizar alquimia: ";
+            cout << "\n\nPresione 1 para viajar, 2 para entrenar o 3 para realizar alquimia: ";
             cin >> action;
 
             while(action<0 || action >3)
@@ -372,14 +416,19 @@ int main()
             }
             else if(action == 2)//Entrenar
             {
-
+                tree.FindInVillage(tree.Player->Village);
+                Guardian* Lowest = tree.FindLowestPW();
+                cout << "\nGuardian de nivel minimo (recomendado): " << Lowest->name;
             }
             else if(action == 3)//Alquimia
             {
 
             }
 
-            tree.PlayerInfo();
+            // cout << "\n\n";
+            // tree.PlayerInfo();
+            // cout << "\n\n";
+            // tree.MoldableInfo();
 
         }while(action!=0);
 
